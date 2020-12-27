@@ -1,4 +1,5 @@
 import styles from './Products.module.scss';
+import useSWR from 'swr';
 import { product } from '../../../models';
 
 export async function getServerSideProps(context) {
@@ -10,6 +11,14 @@ export async function getServerSideProps(context) {
 }
 
 export default function AdminProductsPage({ products }) {
+    const fetcher = url => fetch(url).then(res => res.json());
+    const { data, error } = useSWR('/api/admin/products', fetcher, {
+        initialData: {
+            products
+        },
+        refreshInterval: 3000,
+    });
+
     const handleForm = async (event) => {
         event.preventDefault();
         const formData = new FormData(event.target);
@@ -27,7 +36,7 @@ export default function AdminProductsPage({ products }) {
         <div>
             <h1>Admin Products</h1>
 
-            {products.map(product => {
+            {data.products.map(product => {
                 return (
                     <div className={styles.productItem} key={`product-${product.id}`}>
                         {product.name} ({product.priceCents})<br />
