@@ -16,13 +16,12 @@ export default function AdminProductsPage({ products }) {
         initialData: {
             products
         },
-        refreshInterval: 3000,
+        refreshInterval: 300,
     });
 
     const handleForm = async (event) => {
         event.preventDefault();
         const formData = new FormData(event.target);
-        console.log();
         await fetch('/api/admin/products/create', {
             method: "POST",
             headers: {
@@ -39,7 +38,7 @@ export default function AdminProductsPage({ products }) {
             {data.products.map(product => {
                 return (
                     <div className={styles.productItem} key={`product-${product.id}`}>
-                        {product.name} ({product.priceCents})<br />
+                        {product.id}. {product.name} ({product.priceCents})<br />
                         {product.category}
                     </div>
                 )
