@@ -1,9 +1,19 @@
 import styles from './Products.module.scss';
 import useSWR from 'swr';
 import { product } from '../../../models';
+import { useSession, signOut, getSession } from 'next-auth/client'
 
 export async function getServerSideProps(context) {
     const products = await product.findMany();
+    const session = await getSession(context);
+
+    if (!session) {
+        const { res } = context;
+        res.setHeader("location", "/api/auth/signin");
+        res.statusCode = 302;
+        res.end();
+        return;
+    }
 
     return {
         props: { products }
@@ -11,6 +21,8 @@ export async function getServerSideProps(context) {
 }
 
 export default function AdminProductsPage({ products }) {
+    const [session, loading] = useSession();
+    console.log(session);
     const fetcher = url => fetch(url).then(res => res.json());
     const { data, error } = useSWR('/api/admin/products', fetcher, {
         initialData: {
@@ -33,6 +45,7 @@ export default function AdminProductsPage({ products }) {
 
     return (
         <div>
+            <p>You are logged in as {session?.user?.email} (<a href="" onClick={signOut}>Sign Out</a>)</p>
             <h1>Admin Products</h1>
 
             {data.products.map(product => {
